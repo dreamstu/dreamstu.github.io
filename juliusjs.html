@@ -1,0 +1,155 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="Keywords" content="blog"/>
+    <meta name="Description" content="blog"/>
+    <title>JohnKim Blog</title>
+    <link rel="shortcut icon" href="/static/favicon.png"/>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div class="main">
+    <div class="header">
+    	<ul id="pages">
+            <li><a href="/">home</a></li>
+            <li><a href="/#/tags">tags</a></li>
+            <li><a href="/#/archive">archive</a></li>
+    	</ul>
+    </div>
+	<div class="wrap-header">
+	<h1>
+    <a href="/" id="title"></a>
+	</h1>
+	</div>
+<div id="md" style="display: none;">
+<!-- markdown -->
+JuliusJS是一个语言识别的 JavaScript 库。可以先试试这个在线示例，对着话筒说英文测试。
+
+~~~~{javascript}
+// bootstrap JuliusJS
+var julius = new Julius();
+ 
+julius.onrecognition = function(sentence) {
+    console.log(sentence);
+};
+ 
+// say "Hello, world!"
+// console logs: `> HELLO WORLD`
+~~~~
+
+##特性
+
+* 实时转录
+* 利用现有的语法，也可自定义
+* 100% JavaScript 实现
+* 在浏览器中通过 Worker 完成识别操作
+* 熟悉的基于事件的 API
+* 没有额外的服务器调用
+
+>官方网站：
+<a rel="nofollow" target="_blank" href="http://zzmp.github.io/juliusjs/">http://zzmp.github.io/juliusjs/</a><br>GitHub：<a rel="nofollow" target="_blank" href="https://github.com/zzmp/juliusjs">https://github.com/zzmp/juliusjs</a>
+<!-- markdown end -->
+</div>
+<div class="entry" id="main">
+<!-- content -->
+<p>JuliusJS是一个语言识别的 JavaScript 库。可以先试试这个在线示例，对着话筒说英文测试。</p>
+
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token comment" spellcheck="true">// bootstrap JuliusJS
+</span><span class="token keyword">var</span> julius <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Julius</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+julius<span class="token punctuation">.</span>onrecognition <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span>sentence<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    console<span class="token punctuation">.</span><span class="token function">log<span class="token punctuation">(</span></span>sentence<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">
+// say "Hello, world!"
+</span><span class="token comment" spellcheck="true">// console logs: `&gt; HELLO WORLD`
+</span></code></pre>
+
+<h2 id="">特性</h2>
+
+<ul>
+<li>实时转录</li>
+<li>利用现有的语法，也可自定义</li>
+<li>100% JavaScript 实现</li>
+<li>在浏览器中通过 Worker 完成识别操作</li>
+<li>熟悉的基于事件的 API</li>
+<li>没有额外的服务器调用</li>
+</ul>
+
+<blockquote>
+  <p>官方网站：
+  <a rel="nofollow" target="_blank" href="http://zzmp.github.io/juliusjs/">http://zzmp.github.io/juliusjs/</a><br>GitHub：<a rel="nofollow" target="_blank" href="https://github.com/zzmp/juliusjs">https://github.com/zzmp/juliusjs</a></p>
+</blockquote>
+<!-- content end -->
+</div>
+<br>
+<br>
+    <div id="disqus_thread"></div>
+	<div class="footer">
+		<p>© Copyright 2014 by johnkim, Designed by johnkim</p>
+	</div>
+</div>
+<script src="main.js"></script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ["\\(", "\\)"]], processEscapes: true}});
+</script>
+<script id="content" type="text/mustache">
+    <h1>{{title}}</h1>
+    <div class="tag">
+    {{date}}
+    {{#tags}}
+    <a href="/#/tag/{{name}}">#{{name}}</a>
+    {{/tags}}
+    </div>
+</script>
+<script id="pagesTemplate" type="text/mustache">
+    {{#pages}}
+    <li>
+        <a href="{{path}}">{{title}}</a>
+    </li>
+    {{/pages}}
+</script>
+<script>
+$(document).ready(function() {
+    $.ajax({
+        url: "main.json",
+        type: "GET",
+        dataType: "json",
+        success: function(data) {
+            $("#title").html(data.name);
+            var pagesTemplate = Hogan.compile($("#pagesTemplate").html());
+            var pagesHtml = pagesTemplate.render({"pages": data.pages});
+            $("#pages").append(pagesHtml);
+            //path
+            var path = "juliusjs.html";
+            //path end
+            var now = 0;
+            for (var i = 0; i < data.posts.length; ++i)
+                if (path == data.posts[i].path)
+                    now = i;
+            var post = data.posts[now];
+            var tmp = post.tags.split(" ");
+            var tags = [];
+            for (var i = 0; i < tmp.length; ++i)
+                if (tmp[i].length > 0)
+                    tags.push({"name": tmp[i]});
+            var contentTemplate = Hogan.compile($("#content").html());
+            var contentHtml = contentTemplate.render({"title": post.title, "tags": tags, "date": post.date});
+            $("#main").prepend(contentHtml);
+            if (data.disqus_shortname.length > 0) {
+                var disqus_shortname = data.disqus_shortname;
+                (function() {
+                    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                })();
+            }
+        }
+    });
+});
+</script>
+</body>
+</html>
