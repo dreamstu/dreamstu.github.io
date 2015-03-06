@@ -1,0 +1,251 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="Keywords" content="blog"/>
+    <meta name="Description" content="blog"/>
+    <title>JohnKim Blog</title>
+    <link rel="shortcut icon" href="/static/favicon.png"/>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div class="main">
+    <div class="header">
+    	<ul id="pages">
+            <li><a href="/">home</a></li>
+            <li><a href="/#/tags">tags</a></li>
+            <li><a href="/#/archive">archive</a></li>
+    	</ul>
+    </div>
+	<div class="wrap-header">
+	<h1>
+    <a href="/" id="title"></a>
+	</h1>
+	</div>
+<div id="md" style="display: none;">
+<!-- markdown -->
+##一、水平居中布局与滚动条跳动的千年难题
+
+当前web届，绝大多数的页面间布局都是水平居中布局，主体定个宽度，然后margin: 0 auto的节奏~
+
+例如，妇女之友大淘宝的首页：
+
+![](http://pic.conn.cc/ls.jpg)
+
+然而，这种布局有一个存在一个影响用户体验的隐患。应该都知道，现代浏览器滚动条默认是overflow:auto类型的，也就是如果尺寸不足一屏，没有滚动条；超出，出现滚动条。于是，问题来了：
+
+信息流页面，如新浪微博，是从上往下push渲染的。开始只有头部一些信息加载，此时页面高度有限，没有滚动条；然后，更多内容显示，滚动条出现，占据可用宽度，margin: 0 auto主体元素自然会做偏移——跳动产生。
+JS交互，本来默认页面高度不足一屏，结果点击了个“加载更多”，内容超过一屏，滚动条出现，页面主体就会左侧跳动。
+结构类似几个页面通过头部的水平导航刷新切换，结果有的页面有滚动条，有的没有。造成的结果就是，导航尼玛怎么跳来跳去！
+当前优化这种体验问题，一般有两种解决方法：
+
+高度尺寸不确定的，例如，新浪微博，使用：
+
+~~~~{css}
+body { overflow-y: scroll; }
+~~~~
+
+![](http://ww4.sinaimg.cn/mw690/6941baebgw1eon92rfo4rj20a4033dfx.jpg)
+
+高度确定的，例如淘宝网首页。使用CSS把页面尺寸布局骨架搭好，再在里面吐数据。于是，要么没有滚动条，要么滚动条直接出现。不会出现跳动。
+
+![](http://ww3.sinaimg.cn/mw690/6941baebgw1eon92qut1ej20bp07q74c.jpg)
+
+然而，然而，后面的策略只适合一些特殊的定制性很强的页面。你说像知乎这样子，高度随内容而定的页面，显然就无法驾驭；而第1种方法overflow-y: scroll，在页面高度较小的时候，依然会保留一个丑陋的灰色的滚动栏，这其实又回到了IE当道的旧社会时代。现代浏览器做的那些默认视觉优化岂不是白费了，想想就好痛心。
+
+![](http://ww4.sinaimg.cn/mw690/6941baebgw1eon92qfl3xj206g058746.jpg)
+
+大师，难道就没有一了百了、两全其美、三生有幸的方法了吗？![](http://mat1.gtimg.com/www/mb/images/face/18.gif)
+
+阿弥陀佛，骚年，请看我手中的这盏灯……
+
+二、CSS3计算calc和vw单位巧妙实现滚动条出现页面不跳动
+
+很简单，只要一行代码就搞定了：
+
+~~~~{css}
+.wrap-outer {
+    margin-left: calc(100vw - 100%);
+}
+~~~~
+或者：
+~~~~{css}
+.wrap-outer {
+    padding-left: calc(100vw - 100%);
+}
+~~~~
+然后就可以庆祝放鞭炮啦！！![](http://mat1.gtimg.com/www/mb/images/face/210.gif)
+
+首先，.wrap-outer指的是居中定宽主体的父级，如果没有，创建一个（使用主体也是可以实现类似效果，不过本着宽度分离原则，不推荐）；
+然后，calc是CSS3中的计算，IE10+浏览器支持，IE9浏览器基本支持(不能用在background-position上)；
+最后，100vw相对于浏览器的window.innerWidth，是浏览器的内部宽度，注意，滚动条宽度也计算在内！而100%是可用宽度，是不含滚动条的宽度。
+于是，calc(100vw - 100%)就是浏览器滚动条的宽度大小（如果有，如果没有滚动条则是0）！左右都有一个滚动条宽度（或都是0）被占用，主体内容就可以永远居中浏览器啦，从而没有任何跳动！
+
+您可以狠狠地点击这里(IE10+)：<a href="http://www.zhangxinxu.com/study/201501/body-scrollbar-no-jump.html" target="_blank">页面出现滚动条的时候没有跳动demo</a>
+
+demo页面中，标题和下面的妹子都是居中效果。其中，妹子做了本文所述的“滚动无跳动”处理，而标题没有，结果，你会发现，滚动条出现与否会让标题文字跳动，但是，妹子却女神般岿然不动：
+![](http://ww2.sinaimg.cn/mw690/6941baebgw1eon92q2bnvj20ev0awta0.jpg)
+
+兼容性
+支持：IE9+以及其他现代浏览器。
+
+窄屏幕宽度下的处理
+上面CSS还是有一点瑕疵的，浏览器宽度比较小的时候，左侧留的白明显与右边多，说不定会显得有点傻。此时，可能需要做点响应式处理会更好一点：
+
+~~~~{css}
+@media screen and (min-width: 1150px) {
+   .wrap-outer {
+       margin-left: calc(100vw - 100%);
+   }
+}
+~~~~
+三、结束语
+
+本文参考自：<a href="http://aykevl.nl/2014/09/fix-jumping-scrollbar" target="_blank">Fix ‘jumping scrollbar’ issue using only CSS</a>
+<!-- markdown end -->
+</div>
+<div class="entry" id="main">
+<!-- content -->
+<h2 id="">一、水平居中布局与滚动条跳动的千年难题</h2>
+
+<p>当前web届，绝大多数的页面间布局都是水平居中布局，主体定个宽度，然后margin: 0 auto的节奏~</p>
+
+<p>例如，妇女之友大淘宝的首页：</p>
+
+<p><img src="http://pic.conn.cc/ls.jpg" alt="" title=""></p>
+
+<p>然而，这种布局有一个存在一个影响用户体验的隐患。应该都知道，现代浏览器滚动条默认是overflow:auto类型的，也就是如果尺寸不足一屏，没有滚动条；超出，出现滚动条。于是，问题来了：</p>
+
+<p>信息流页面，如新浪微博，是从上往下push渲染的。开始只有头部一些信息加载，此时页面高度有限，没有滚动条；然后，更多内容显示，滚动条出现，占据可用宽度，margin: 0 auto主体元素自然会做偏移——跳动产生。
+JS交互，本来默认页面高度不足一屏，结果点击了个“加载更多”，内容超过一屏，滚动条出现，页面主体就会左侧跳动。
+结构类似几个页面通过头部的水平导航刷新切换，结果有的页面有滚动条，有的没有。造成的结果就是，导航尼玛怎么跳来跳去！
+当前优化这种体验问题，一般有两种解决方法：</p>
+
+<p>高度尺寸不确定的，例如，新浪微博，使用：</p>
+
+<pre class=" language-css"><code class=" language-css"><span class="token selector">body </span><span class="token punctuation">{</span> <span class="token property">overflow-y</span><span class="token punctuation">:</span> scroll<span class="token punctuation">;</span> <span class="token punctuation">}</span>
+</code></pre>
+
+<p><img src="http://ww4.sinaimg.cn/mw690/6941baebgw1eon92rfo4rj20a4033dfx.jpg" alt="" title=""></p>
+
+<p>高度确定的，例如淘宝网首页。使用CSS把页面尺寸布局骨架搭好，再在里面吐数据。于是，要么没有滚动条，要么滚动条直接出现。不会出现跳动。</p>
+
+<p><img src="http://ww3.sinaimg.cn/mw690/6941baebgw1eon92qut1ej20bp07q74c.jpg" alt="" title=""></p>
+
+<p>然而，然而，后面的策略只适合一些特殊的定制性很强的页面。你说像知乎这样子，高度随内容而定的页面，显然就无法驾驭；而第1种方法overflow-y: scroll，在页面高度较小的时候，依然会保留一个丑陋的灰色的滚动栏，这其实又回到了IE当道的旧社会时代。现代浏览器做的那些默认视觉优化岂不是白费了，想想就好痛心。</p>
+
+<p><img src="http://ww4.sinaimg.cn/mw690/6941baebgw1eon92qfl3xj206g058746.jpg" alt="" title=""></p>
+
+<p>大师，难道就没有一了百了、两全其美、三生有幸的方法了吗？<img src="http://mat1.gtimg.com/www/mb/images/face/18.gif" alt="" title=""></p>
+
+<p>阿弥陀佛，骚年，请看我手中的这盏灯……</p>
+
+<p>二、CSS3计算calc和vw单位巧妙实现滚动条出现页面不跳动</p>
+
+<p>很简单，只要一行代码就搞定了：</p>
+
+<p></p><pre class=" language-css"><code class=" language-css"><span class="token selector">.wrap-outer </span><span class="token punctuation">{</span>
+    <span class="token property">margin-left</span><span class="token punctuation">:</span> calc(100vw - 100%)<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>或者：
+<pre class=" language-css"><code class=" language-css"><span class="token selector">.wrap-outer </span><span class="token punctuation">{</span>
+    <span class="token property">padding-left</span><span class="token punctuation">:</span> calc(100vw - 100%)<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>然后就可以庆祝放鞭炮啦！！<img src="http://mat1.gtimg.com/www/mb/images/face/210.gif" alt="" title=""><p></p>
+
+<p>首先，.wrap-outer指的是居中定宽主体的父级，如果没有，创建一个（使用主体也是可以实现类似效果，不过本着宽度分离原则，不推荐）；
+然后，calc是CSS3中的计算，IE10+浏览器支持，IE9浏览器基本支持(不能用在background-position上)；
+最后，100vw相对于浏览器的window.innerWidth，是浏览器的内部宽度，注意，滚动条宽度也计算在内！而100%是可用宽度，是不含滚动条的宽度。
+于是，calc(100vw - 100%)就是浏览器滚动条的宽度大小（如果有，如果没有滚动条则是0）！左右都有一个滚动条宽度（或都是0）被占用，主体内容就可以永远居中浏览器啦，从而没有任何跳动！</p>
+
+<p>您可以狠狠地点击这里(IE10+)：<a href="http://www.zhangxinxu.com/study/201501/body-scrollbar-no-jump.html" target="_blank">页面出现滚动条的时候没有跳动demo</a></p>
+
+<p>demo页面中，标题和下面的妹子都是居中效果。其中，妹子做了本文所述的“滚动无跳动”处理，而标题没有，结果，你会发现，滚动条出现与否会让标题文字跳动，但是，妹子却女神般岿然不动：
+<img src="http://ww2.sinaimg.cn/mw690/6941baebgw1eon92q2bnvj20ev0awta0.jpg" alt="" title=""></p>
+
+<p>兼容性
+支持：IE9+以及其他现代浏览器。</p>
+
+<p>窄屏幕宽度下的处理
+上面CSS还是有一点瑕疵的，浏览器宽度比较小的时候，左侧留的白明显与右边多，说不定会显得有点傻。此时，可能需要做点响应式处理会更好一点：</p>
+
+<p></p><pre class=" language-css"><code class=" language-css"><span class="token atrule">@media screen and (min-width<span class="token punctuation">:</span> 1150px)</span> <span class="token punctuation">{</span>
+   <span class="token selector">.wrap-outer </span><span class="token punctuation">{</span>
+       <span class="token property">margin-left</span><span class="token punctuation">:</span> calc(100vw - 100%)<span class="token punctuation">;</span>
+   <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>三、结束语<p></p>
+
+<p>本文参考自：<a href="http://aykevl.nl/2014/09/fix-jumping-scrollbar" target="_blank">Fix ‘jumping scrollbar’ issue using only CSS</a></p>
+<!-- content end -->
+</div>
+<br>
+<br>
+    <div id="disqus_thread"></div>
+	<div class="footer">
+		<p>© Copyright 2014 by johnkim, Designed by johnkim</p>
+	</div>
+</div>
+<script src="main.js"></script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ["\\(", "\\)"]], processEscapes: true}});
+</script>
+<script id="content" type="text/mustache">
+    <h1>{{title}}</h1>
+    <div class="tag">
+    {{date}}
+    {{#tags}}
+    <a href="/#/tag/{{name}}">#{{name}}</a>
+    {{/tags}}
+    </div>
+</script>
+<script id="pagesTemplate" type="text/mustache">
+    {{#pages}}
+    <li>
+        <a href="{{path}}">{{title}}</a>
+    </li>
+    {{/pages}}
+</script>
+<script>
+$(document).ready(function() {
+    $.ajax({
+        url: "main.json",
+        type: "GET",
+        dataType: "json",
+        success: function(data) {
+            $("#title").html(data.name);
+            var pagesTemplate = Hogan.compile($("#pagesTemplate").html());
+            var pagesHtml = pagesTemplate.render({"pages": data.pages});
+            $("#pages").append(pagesHtml);
+            //path
+            var path = "82023.html";
+            //path end
+            var now = 0;
+            for (var i = 0; i < data.posts.length; ++i)
+                if (path == data.posts[i].path)
+                    now = i;
+            var post = data.posts[now];
+            var tmp = post.tags.split(" ");
+            var tags = [];
+            for (var i = 0; i < tmp.length; ++i)
+                if (tmp[i].length > 0)
+                    tags.push({"name": tmp[i]});
+            var contentTemplate = Hogan.compile($("#content").html());
+            var contentHtml = contentTemplate.render({"title": post.title, "tags": tags, "date": post.date});
+            $("#main").prepend(contentHtml);
+            if (data.disqus_shortname.length > 0) {
+                var disqus_shortname = data.disqus_shortname;
+                (function() {
+                    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                })();
+            }
+        }
+    });
+});
+</script>
+</body>
+</html>
