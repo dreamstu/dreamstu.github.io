@@ -137,6 +137,227 @@ var createMask = singleton(function() {
 用一个变量来保存第一次的返回值, 如果它已经被赋值过, 那么在以后的调用中优先返回该变量. 而真正创建遮罩层的代码是通过回调函数的方式传人到singleton包装器中的. 这种方式其实叫桥接模式. 关于桥接模式, 放在后面一点点来说.
 
 然而singleton函数也不是完美的, 它始终还是需要一个变量result来寄存div的引用. 遗憾的是js的函数式特性还不足以完全的消除声明和语句.
+
+##二 简单工厂模式
+
+简单工厂模式是由一个方法来决定到底要创建哪个类的实例, 而这些实例经常都拥有相同的接口. 这种模式主要用在所实例化的类型在编译期并不能确定， 而是在执行期决定的情况。 说的通俗点，就像公司茶水间的饮料机，要咖啡还是牛奶取决于你按哪个按钮。
+
+~~~~{javascript}
+function A(name) {
+    this.name = name;
+}
+
+function ObjectFactory() {
+    var obj = {},
+    Constructor = Array.prototype.shift.call(arguments);
+    obj.__proto__ = typeof Constructor.prototype === 'number' ? Object.prototype: Constructor.prototype;
+    var ret = Constructor.apply(obj, arguments);
+    return typeof ret === 'object' ? ret: obj;
+}
+
+var a = ObjectFactory(A, 'svenzeng');
+alert(a.name); //svenzeng
+~~~~
+这段代码来自es5的new和构造器的相关说明， 可以看到，所谓的new， 本身只是一个对象的复制和改写过程， 而具体会生成什么是由调用ObjectFactory时传进去的参数所决定的。
+
+##三 观察者模式
+
+观察者模式( 又叫发布者-订阅者模式 )应该是最常用的模式之一. 在很多语言里都得到大量应用. 包括我们平时接触的dom事件. 也是js和dom之间实现的一种观察者模式.
+
+~~~~{javascript}
+div.onclick = function click() {
+  alert(''click ' )
+}
+~~~~
+只要订阅了div的click事件. 当点击div的时候, function click就会被触发.
+
+那么到底什么是观察者模式呢. 先看看生活中的观察者模式。
+
+好莱坞有句名言. “不要给我打电话， 我会给你打电话”. 这句话就解释了一个观察者模式的来龙去脉。 其中“我”是发布者， “你”是订阅者。
+
+再举个例子，我来公司面试的时候，完事之后每个面试官都会对我说：“请留下你的联系方式， 有消息我们会通知你”。 在这里“我”是订阅者， 面试官是发布者。所以我不用每天或者每小时都去询问面试结果， 通讯的主动权掌握在了面试官手上。而我只需要提供一个联系方式。
+
+观察者模式可以很好的实现2个模块之间的解耦。 假如我正在一个团队里开发一个html5游戏. 当游戏开始的时候，需要加载一些图片素材。加载好这些图片之后开始才执行游戏逻辑. 假设这是一个需要多人合作的项目. 我完成了Gamer和Map模块, 而我的同事A写了一个图片加载器loadImage.
+
+loadImage的代码如下
+
+~~~~{javascript}
+loadImage(imgAry,
+function() {
+  Map.init();
+  Gamer.init();
+})
+~~~~
+
+当图片加载好之后, 再渲染地图, 执行游戏逻辑. 嗯, 这个程序运行良好. 突然有一天, 我想起应该给游戏加上声音功能. 我应该让图片加载器添上一行代码.
+~~~~{javascript}
+loadImage(imgAry,
+function() {
+  Map.init();
+  Gamer.init();
+})
+~~~~
+
+可是写这个模块的同事A去了外地旅游. 于是我打电话给他, 喂. 你的loadImage函数在哪, 我能不能改一下, 改了之后有没有副作用. 如你所想, 各种不淡定的事发生了. 如果当初我们能这样写呢:
+~~~~{javascript}
+loadImage.listen(''ready ', function(){
+    Map.init();
+})
+ 
+loadImage.listen( ''ready',
+function() {
+  Gamer.init();
+})
+
+loadImage.listen(''ready ', function(){
+   Sount.init();
+})
+~~~~
+
+loadImage完成之后, 它根本不关心将来会发生什么, 因为它的工作已经完成了. 接下来它只要发布一个信号.
+`loadImage.trigger( ”ready’ );`
+
+那么监听了loadImage的’ready’事件的对象都会收到通知. 就像上个面试的例子. 面试官根本不关心面试者们收到面试结果后会去哪吃饭. 他只负责把面试者的简历搜集到一起. 当面试结果出来时照着简历上的电话挨个通知.
+
+说了这么多概念, 来一个具体的实现. 实现过程其实很简单. 面试者把简历扔到一个盒子里， 然后面试官在合适的时机拿着盒子里的简历挨个打电话通知结果.
+~~~~{javascript}
+Events = function() {
+
+  var listen, log, obj, one, remove, trigger, __this;
+  obj = {};
+  __this = this;
+
+  listen = function(key, eventfn) { //把简历扔盒子, key就是联系方式.
+    var stack, _ref; //stack是盒子
+    stack = (_ref = obj[key]) != null ? _ref: obj[key] = [];
+    return stack.push(eventfn);
+  };
+
+  one = function(key, eventfn) {
+    remove(key);
+    return listen(key, eventfn);
+  };
+
+  remove = function(key) {
+    var _ref;
+    return (_ref = obj[key]) != null ? _ref.length = 0 : void 0;
+  };
+
+  trigger = function() { //面试官打电话通知面试者
+    var fn, stack, _i, _len, _ref, key;
+    key = Array.prototype.shift.call(arguments);
+    stack = (_ref = obj[key]) != null ? _ref: obj[key] = [];
+    for (_i = 0, _len = stack.length; _i < _len; _i++) {
+      fn = stack[_i];
+      if (fn.apply(__this, arguments) === false) {
+        return false;
+      }
+    }
+
+    return {
+      listen: listen,
+      one: one,
+      remove: remove,
+      trigger: trigger
+    }
+  }
+~~~~
+
+最后用观察者模式来做一个成人电视台的小应用.
+
+//订阅者
+~~~~{javascript}
+var adultTv = Event(); adultTv.listen( 'play ',  function( data ){
+   alert ( "今天是谁的电影" + data.name );
+});
+ 
+//发布者
+adultTv .trigger(  'play',   {
+  'name': '麻生希'
+} );
+~~~~
+
+##四 适配器模式
+
+去年年前当时正在开发dev.qplus.com, 有个存储应用分类id的js文件, 分类id的结构最开始设计的比较笨重. 于是我决定重构它. 我把它定义成一个json树的形式, 大概是这样:
+~~~~{javascript}
+var category = {
+   music: {
+    id: 1,
+    children: [ , , , , ]
+   }
+}
+~~~~
+
+dev.qplus.com里大概有4，5个页面都调用这个category对象. 春节前我休了1个星期假. 过年来之后发现邮箱里有封邮件, 设计数据库的同学把category..js也重构了一份, 并且其他几个项目里都是用了这份category.js, 我拿过来一看就傻眼了, 和我之前定的数据结构完全不一样.
+
+当然这是一个沟通上的反面例子. 但接下来的重点是我已经在N个文件里用到了之前我定的category.js. 而且惹上了一些复杂的相关逻辑. 怎么改掉我之前的代码呢. 全部重写肯定是不愿意. 所以现在适配器就派上用场了.
+
+只需要把同事的category用一个函数转成跟我之前定义的一样.
+
+~~~~{javascript}
+my.category = adapterCategory ( afu.category );
+~~~~
+
+适配器模式的作用很像一个转接口. 本来iphone的充电器是不能直接插在电脑机箱上的, 而通过一个usb转接口就可以了.
+
+所以, 在程序里适配器模式也经常用来适配2个接口, 比如你现在正在用一个自定义的js库. 里面有个根据id获取节点的方法$id(). 有天你觉得jquery里的 `$` 实现得更酷, 但你又不想让你的工程师去学习新的库和语法. 那一个适配器就能让你完成这件事情.
+
+~~~~{javascript}
+$id = function( id ){ 
+  return jQuery( '#' + id )[0];
+}
+~~~~
+
+##五 代理模式
+代理模式的定义是把对一个对象的访问, 交给另一个代理对象来操作.
+
+举一个例子, 我在追一个MM想给她送一束花，但是我因为我性格比较腼腆，所以我托付了MM的一个好朋友来送。
+
+这个例子不是非常好， 至少我们没看出代理模式有什么大的用处，因为追MM更好的方式是送一台宝马。
+
+再举个例子，假如我每天都得写工作日报( 其实没有这么惨 ). 我的日报最后会让总监审阅. 如果我们都直接把日报发给 总监 , 那可能 总监 就没法工作了. 所以通常的做法是把日报发给我的组长 ， 组长把所有组员一周的日报都汇总后再发给总监 .
+
+实际的编程中， 这种因为性能问题使用代理模式的机会是非常多的。比如频繁的访问dom节点, 频繁的请求远程资源. 可以把操作先存到一个缓冲区, 然后自己选择真正的触发时机.
+
+再来个详细的例子，之前我写了一个街头霸王的游戏, 地址在http://alloyteam.github.com/StreetFighter/
+
+![](http://pic.conn.cc/ks.jpg)
+
+游戏中隆需要接受键盘的事件, 来完成相应动作.
+
+于是我写了一个keyManage类. 其中在游戏主线程里监听keyManage的变化
+~~~~{javascript}
+var keyMgr = keyManage();
+ 
+keyMgr.listen( ''change', function( keyCode ){
+    console.log( keyCode );
+});
+~~~~
+
+图片里面隆正在放升龙拳, 升龙拳的操作是前下前+拳. 但是这个keyManage类只要发生键盘事件就会触发之前监听的change函数. 这意味着永远只能取得前，后，前，拳这样单独的按键事件，而无法得到一个按键组合。
+
+好吧，我决定改写我的keyManage类, 让它也支持传递按键组合. 但是如果我以后写个html5版双截龙，意味着我每次都得改写keyManage. 我总是觉得, 这种函数应该可以抽象成一个更底层的方法, 让任何游戏都可以用上它.
+
+所以最后的keyManage只负责映射键盘事件. 而隆接受到的动作是通过一个代理对象处理之后的.
+
+~~~~{javascript}
+var keyMgr = keyManage();
+ 
+keyMgr.listen( ''change', proxy( function( keyCode ){
+    console.log( keyCode );  //前下前+拳
+)} );
+~~~~
+
+至于proxy里面怎么实现，完全可以自由发挥。
+
+还有个例子就是在调用ajax请求的时候，无论是各种开源库，还是自己写的Ajax类, 都会给xhr对象设置一个代理. 我们不可能频繁的去操作xhr对象发请求, 而应该是这样.
+~~~~{javascript}
+var request = Ajax.get( 'cgi.xx.com/xxx' );
+request.send();
+request.done(function(){
+});
+~~~~
 <!-- markdown end -->
 </div>
 <div class="entry" id="main">
@@ -249,6 +470,220 @@ $<span class="token punctuation">(</span> <span class="token string">''</span>bu
 <p>用一个变量来保存第一次的返回值, 如果它已经被赋值过, 那么在以后的调用中优先返回该变量. 而真正创建遮罩层的代码是通过回调函数的方式传人到singleton包装器中的. 这种方式其实叫桥接模式. 关于桥接模式, 放在后面一点点来说.</p>
 
 <p>然而singleton函数也不是完美的, 它始终还是需要一个变量result来寄存div的引用. 遗憾的是js的函数式特性还不足以完全的消除声明和语句.</p>
+
+<h2 id="">二 简单工厂模式</h2>
+
+<p>简单工厂模式是由一个方法来决定到底要创建哪个类的实例, 而这些实例经常都拥有相同的接口. 这种模式主要用在所实例化的类型在编译期并不能确定， 而是在执行期决定的情况。 说的通俗点，就像公司茶水间的饮料机，要咖啡还是牛奶取决于你按哪个按钮。</p>
+
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">function</span> <span class="token function">A<span class="token punctuation">(</span></span>name<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>name <span class="token operator">=</span> name<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">ObjectFactory<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> obj <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    Constructor <span class="token operator">=</span> Array<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>shift<span class="token punctuation">.</span><span class="token function">call<span class="token punctuation">(</span></span>arguments<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    obj<span class="token punctuation">.</span>__proto__ <span class="token operator">=</span> <span class="token keyword">typeof</span> Constructor<span class="token punctuation">.</span>prototype <span class="token operator">===</span> <span class="token string">'number'</span> <span class="token operator">?</span> Object<span class="token punctuation">.</span>prototype<span class="token punctuation">:</span> Constructor<span class="token punctuation">.</span>prototype<span class="token punctuation">;</span>
+    <span class="token keyword">var</span> ret <span class="token operator">=</span> Constructor<span class="token punctuation">.</span><span class="token function">apply<span class="token punctuation">(</span></span>obj<span class="token punctuation">,</span> arguments<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token keyword">typeof</span> ret <span class="token operator">===</span> <span class="token string">'object'</span> <span class="token operator">?</span> ret<span class="token punctuation">:</span> obj<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">var</span> a <span class="token operator">=</span> <span class="token function">ObjectFactory<span class="token punctuation">(</span></span>A<span class="token punctuation">,</span> <span class="token string">'svenzeng'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">alert<span class="token punctuation">(</span></span>a<span class="token punctuation">.</span>name<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> //svenzeng
+</span></code></pre>这段代码来自es5的new和构造器的相关说明， 可以看到，所谓的new， 本身只是一个对象的复制和改写过程， 而具体会生成什么是由调用ObjectFactory时传进去的参数所决定的。
+
+##三 观察者模式
+
+观察者模式( 又叫发布者-订阅者模式 )应该是最常用的模式之一. 在很多语言里都得到大量应用. 包括我们平时接触的dom事件. 也是js和dom之间实现的一种观察者模式.
+
+<pre class=" language-javascript"><code class=" language-javascript">div<span class="token punctuation">.</span>onclick <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token function">click<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token function">alert<span class="token punctuation">(</span></span><span class="token string">''</span>click ' <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+</code></pre>只要订阅了div的click事件. 当点击div的时候, function click就会被触发.
+
+那么到底什么是观察者模式呢. 先看看生活中的观察者模式。
+
+好莱坞有句名言. “不要给我打电话， 我会给你打电话”. 这句话就解释了一个观察者模式的来龙去脉。 其中“我”是发布者， “你”是订阅者。
+
+再举个例子，我来公司面试的时候，完事之后每个面试官都会对我说：“请留下你的联系方式， 有消息我们会通知你”。 在这里“我”是订阅者， 面试官是发布者。所以我不用每天或者每小时都去询问面试结果， 通讯的主动权掌握在了面试官手上。而我只需要提供一个联系方式。
+
+观察者模式可以很好的实现2个模块之间的解耦。 假如我正在一个团队里开发一个html5游戏. 当游戏开始的时候，需要加载一些图片素材。加载好这些图片之后开始才执行游戏逻辑. 假设这是一个需要多人合作的项目. 我完成了Gamer和Map模块, 而我的同事A写了一个图片加载器loadImage.
+
+loadImage的代码如下
+
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token function">loadImage<span class="token punctuation">(</span></span>imgAry<span class="token punctuation">,</span>
+<span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  Map<span class="token punctuation">.</span><span class="token function">init<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  Gamer<span class="token punctuation">.</span><span class="token function">init<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+
+<p>当图片加载好之后, 再渲染地图, 执行游戏逻辑. 嗯, 这个程序运行良好. 突然有一天, 我想起应该给游戏加上声音功能. 我应该让图片加载器添上一行代码.</p>
+
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token function">loadImage<span class="token punctuation">(</span></span>imgAry<span class="token punctuation">,</span>
+<span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  Map<span class="token punctuation">.</span><span class="token function">init<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  Gamer<span class="token punctuation">.</span><span class="token function">init<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+
+<p>可是写这个模块的同事A去了外地旅游. 于是我打电话给他, 喂. 你的loadImage函数在哪, 我能不能改一下, 改了之后有没有副作用. 如你所想, 各种不淡定的事发生了. 如果当初我们能这样写呢:</p>
+
+<pre class=" language-javascript"><code class=" language-javascript">loadImage<span class="token punctuation">.</span><span class="token function">listen<span class="token punctuation">(</span></span><span class="token string">''</span>ready '<span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    Map<span class="token punctuation">.</span><span class="token function">init<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+loadImage<span class="token punctuation">.</span><span class="token function">listen<span class="token punctuation">(</span></span> <span class="token string">''</span>ready'<span class="token punctuation">,</span>
+<span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  Gamer<span class="token punctuation">.</span><span class="token function">init<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+loadImage<span class="token punctuation">.</span><span class="token function">listen<span class="token punctuation">(</span></span><span class="token string">''</span>ready '<span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+   Sount<span class="token punctuation">.</span><span class="token function">init<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+
+<p>loadImage完成之后, 它根本不关心将来会发生什么, 因为它的工作已经完成了. 接下来它只要发布一个信号.
+<code>loadImage.trigger( ”ready’ );</code></p>
+
+<p>那么监听了loadImage的’ready’事件的对象都会收到通知. 就像上个面试的例子. 面试官根本不关心面试者们收到面试结果后会去哪吃饭. 他只负责把面试者的简历搜集到一起. 当面试结果出来时照着简历上的电话挨个通知.</p>
+
+<p>说了这么多概念, 来一个具体的实现. 实现过程其实很简单. 面试者把简历扔到一个盒子里， 然后面试官在合适的时机拿着盒子里的简历挨个打电话通知结果.</p>
+
+<pre class=" language-javascript"><code class=" language-javascript">Events <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+  <span class="token keyword">var</span> listen<span class="token punctuation">,</span> log<span class="token punctuation">,</span> obj<span class="token punctuation">,</span> one<span class="token punctuation">,</span> remove<span class="token punctuation">,</span> trigger<span class="token punctuation">,</span> __this<span class="token punctuation">;</span>
+  obj <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+  __this <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">;</span>
+
+  listen <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span>key<span class="token punctuation">,</span> eventfn<span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token comment" spellcheck="true"> //把简历扔盒子, key就是联系方式.
+</span>    <span class="token keyword">var</span> stack<span class="token punctuation">,</span> _ref<span class="token punctuation">;</span><span class="token comment" spellcheck="true"> //stack是盒子
+</span>    stack <span class="token operator">=</span> <span class="token punctuation">(</span>_ref <span class="token operator">=</span> obj<span class="token punctuation">[</span>key<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">!</span><span class="token operator">=</span> <span class="token keyword">null</span> <span class="token operator">?</span> _ref<span class="token punctuation">:</span> obj<span class="token punctuation">[</span>key<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> stack<span class="token punctuation">.</span><span class="token function">push<span class="token punctuation">(</span></span>eventfn<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+  one <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span>key<span class="token punctuation">,</span> eventfn<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">remove<span class="token punctuation">(</span></span>key<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token function">listen<span class="token punctuation">(</span></span>key<span class="token punctuation">,</span> eventfn<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+  remove <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> _ref<span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token punctuation">(</span>_ref <span class="token operator">=</span> obj<span class="token punctuation">[</span>key<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">!</span><span class="token operator">=</span> <span class="token keyword">null</span> <span class="token operator">?</span> _ref<span class="token punctuation">.</span>length <span class="token operator">=</span> <span class="token number">0</span> <span class="token punctuation">:</span> void <span class="token number">0</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+  trigger <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token comment" spellcheck="true"> //面试官打电话通知面试者
+</span>    <span class="token keyword">var</span> fn<span class="token punctuation">,</span> stack<span class="token punctuation">,</span> _i<span class="token punctuation">,</span> _len<span class="token punctuation">,</span> _ref<span class="token punctuation">,</span> key<span class="token punctuation">;</span>
+    key <span class="token operator">=</span> Array<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>shift<span class="token punctuation">.</span><span class="token function">call<span class="token punctuation">(</span></span>arguments<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    stack <span class="token operator">=</span> <span class="token punctuation">(</span>_ref <span class="token operator">=</span> obj<span class="token punctuation">[</span>key<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">!</span><span class="token operator">=</span> <span class="token keyword">null</span> <span class="token operator">?</span> _ref<span class="token punctuation">:</span> obj<span class="token punctuation">[</span>key<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span>_i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> _len <span class="token operator">=</span> stack<span class="token punctuation">.</span>length<span class="token punctuation">;</span> _i <span class="token operator">&lt;</span> _len<span class="token punctuation">;</span> _i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      fn <span class="token operator">=</span> stack<span class="token punctuation">[</span>_i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>fn<span class="token punctuation">.</span><span class="token function">apply<span class="token punctuation">(</span></span>__this<span class="token punctuation">,</span> arguments<span class="token punctuation">)</span> <span class="token operator">===</span> <span class="token boolean">false</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> <span class="token punctuation">{</span>
+      listen<span class="token punctuation">:</span> listen<span class="token punctuation">,</span>
+      one<span class="token punctuation">:</span> one<span class="token punctuation">,</span>
+      remove<span class="token punctuation">:</span> remove<span class="token punctuation">,</span>
+      trigger<span class="token punctuation">:</span> trigger
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+</code></pre>
+
+<p>最后用观察者模式来做一个成人电视台的小应用.</p>
+
+<p>//订阅者</p>
+
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> adultTv <span class="token operator">=</span> <span class="token function">Event<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span> adultTv<span class="token punctuation">.</span><span class="token function">listen<span class="token punctuation">(</span></span> <span class="token string">'play '</span><span class="token punctuation">,</span>  <span class="token keyword">function</span><span class="token punctuation">(</span> data <span class="token punctuation">)</span><span class="token punctuation">{</span>
+   alert <span class="token punctuation">(</span> <span class="token string">"今天是谁的电影"</span> <span class="token operator">+</span> data<span class="token punctuation">.</span>name <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+ <span class="token comment" spellcheck="true">
+//发布者
+</span>adultTv <span class="token punctuation">.</span><span class="token function">trigger<span class="token punctuation">(</span></span>  <span class="token string">'play'</span><span class="token punctuation">,</span>   <span class="token punctuation">{</span>
+  <span class="token string">'name'</span><span class="token punctuation">:</span> <span class="token string">'麻生希'</span>
+<span class="token punctuation">}</span> <span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+
+<h2 id="">四 适配器模式</h2>
+
+<p>去年年前当时正在开发dev.qplus.com, 有个存储应用分类id的js文件, 分类id的结构最开始设计的比较笨重. 于是我决定重构它. 我把它定义成一个json树的形式, 大概是这样:</p>
+
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> category <span class="token operator">=</span> <span class="token punctuation">{</span>
+   music<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+    children<span class="token punctuation">:</span> <span class="token punctuation">[</span> <span class="token punctuation">,</span> <span class="token punctuation">,</span> <span class="token punctuation">,</span> <span class="token punctuation">,</span> <span class="token punctuation">]</span>
+   <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+
+<p>dev.qplus.com里大概有4，5个页面都调用这个category对象. 春节前我休了1个星期假. 过年来之后发现邮箱里有封邮件, 设计数据库的同学把category..js也重构了一份, 并且其他几个项目里都是用了这份category.js, 我拿过来一看就傻眼了, 和我之前定的数据结构完全不一样.</p>
+
+<p>当然这是一个沟通上的反面例子. 但接下来的重点是我已经在N个文件里用到了之前我定的category.js. 而且惹上了一些复杂的相关逻辑. 怎么改掉我之前的代码呢. 全部重写肯定是不愿意. 所以现在适配器就派上用场了.</p>
+
+<p>只需要把同事的category用一个函数转成跟我之前定义的一样.</p>
+
+<pre class=" language-javascript"><code class=" language-javascript">my<span class="token punctuation">.</span>category <span class="token operator">=</span> adapterCategory <span class="token punctuation">(</span> afu<span class="token punctuation">.</span>category <span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+
+<p>适配器模式的作用很像一个转接口. 本来iphone的充电器是不能直接插在电脑机箱上的, 而通过一个usb转接口就可以了.</p>
+
+<p>所以, 在程序里适配器模式也经常用来适配2个接口, 比如你现在正在用一个自定义的js库. 里面有个根据id获取节点的方法$id(). 有天你觉得jquery里的 <code>$</code> 实现得更酷, 但你又不想让你的工程师去学习新的库和语法. 那一个适配器就能让你完成这件事情.</p>
+
+<pre class=" language-javascript"><code class=" language-javascript">$id <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span> id <span class="token punctuation">)</span><span class="token punctuation">{</span> 
+  <span class="token keyword">return</span> <span class="token function">jQuery<span class="token punctuation">(</span></span> <span class="token string">'#'</span> <span class="token operator">+</span> id <span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+
+<h2 id="">五 代理模式</h2>
+
+<p>代理模式的定义是把对一个对象的访问, 交给另一个代理对象来操作.</p>
+
+<p>举一个例子, 我在追一个MM想给她送一束花，但是我因为我性格比较腼腆，所以我托付了MM的一个好朋友来送。</p>
+
+<p>这个例子不是非常好， 至少我们没看出代理模式有什么大的用处，因为追MM更好的方式是送一台宝马。</p>
+
+<p>再举个例子，假如我每天都得写工作日报( 其实没有这么惨 ). 我的日报最后会让总监审阅. 如果我们都直接把日报发给 总监 , 那可能 总监 就没法工作了. 所以通常的做法是把日报发给我的组长 ， 组长把所有组员一周的日报都汇总后再发给总监 .</p>
+
+<p>实际的编程中， 这种因为性能问题使用代理模式的机会是非常多的。比如频繁的访问dom节点, 频繁的请求远程资源. 可以把操作先存到一个缓冲区, 然后自己选择真正的触发时机.</p>
+
+<p>再来个详细的例子，之前我写了一个街头霸王的游戏, 地址在http://alloyteam.github.com/StreetFighter/</p>
+
+<p><img src="http://pic.conn.cc/ks.jpg" alt="" title=""></p>
+
+<p>游戏中隆需要接受键盘的事件, 来完成相应动作.</p>
+
+<p>于是我写了一个keyManage类. 其中在游戏主线程里监听keyManage的变化</p>
+
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> keyMgr <span class="token operator">=</span> <span class="token function">keyManage<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+ 
+keyMgr<span class="token punctuation">.</span><span class="token function">listen<span class="token punctuation">(</span></span> <span class="token string">''</span>change'<span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span> keyCode <span class="token punctuation">)</span><span class="token punctuation">{</span>
+    console<span class="token punctuation">.</span><span class="token function">log<span class="token punctuation">(</span></span> keyCode <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+
+<p>图片里面隆正在放升龙拳, 升龙拳的操作是前下前+拳. 但是这个keyManage类只要发生键盘事件就会触发之前监听的change函数. 这意味着永远只能取得前，后，前，拳这样单独的按键事件，而无法得到一个按键组合。</p>
+
+<p>好吧，我决定改写我的keyManage类, 让它也支持传递按键组合. 但是如果我以后写个html5版双截龙，意味着我每次都得改写keyManage. 我总是觉得, 这种函数应该可以抽象成一个更底层的方法, 让任何游戏都可以用上它.</p>
+
+<p>所以最后的keyManage只负责映射键盘事件. 而隆接受到的动作是通过一个代理对象处理之后的.</p>
+
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> keyMgr <span class="token operator">=</span> <span class="token function">keyManage<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+ 
+keyMgr<span class="token punctuation">.</span><span class="token function">listen<span class="token punctuation">(</span></span> <span class="token string">''</span>change'<span class="token punctuation">,</span> <span class="token function">proxy<span class="token punctuation">(</span></span> <span class="token keyword">function</span><span class="token punctuation">(</span> keyCode <span class="token punctuation">)</span><span class="token punctuation">{</span>
+    console<span class="token punctuation">.</span><span class="token function">log<span class="token punctuation">(</span></span> keyCode <span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true"> //前下前+拳
+</span><span class="token punctuation">)</span><span class="token punctuation">}</span> <span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+
+<p>至于proxy里面怎么实现，完全可以自由发挥。</p>
+
+<p>还有个例子就是在调用ajax请求的时候，无论是各种开源库，还是自己写的Ajax类, 都会给xhr对象设置一个代理. 我们不可能频繁的去操作xhr对象发请求, 而应该是这样.
+~~~~{javascript}
+var request = Ajax.get( 'cgi.xx.com/xxx' );
+request.send();
+request.done(function(){
+});
+~~~~</p>
 <!-- content end -->
 </div>
 <br>
