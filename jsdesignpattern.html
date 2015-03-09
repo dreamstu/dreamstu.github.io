@@ -67,7 +67,7 @@ $('button').click(function() {
 再看下第二种方案, 在页面的一开始就创建好这个div. 然后用一个变量引用它
 
 ~~~~{javascript}
-var mask = document.body.appendChild(document.createElement(''div " ) );
+var mask = document.body.appendChild(document.createElement(''div" ) );
 $( ''button").click(function() {
   mask.show();
 });
@@ -166,7 +166,7 @@ alert(a.name); //svenzeng
 
 ~~~~{javascript}
 div.onclick = function click() {
-  alert(''click ' )
+  alert('click' )
 }
 ~~~~
 只要订阅了div的click事件. 当点击div的时候, function click就会被触发.
@@ -200,11 +200,11 @@ function() {
 
 可是写这个模块的同事A去了外地旅游. 于是我打电话给他, 喂. 你的loadImage函数在哪, 我能不能改一下, 改了之后有没有副作用. 如你所想, 各种不淡定的事发生了. 如果当初我们能这样写呢:
 ~~~~{javascript}
-loadImage.listen(''ready ', function(){
+loadImage.listen('ready ', function(){
     Map.init();
 })
  
-loadImage.listen( ''ready',
+loadImage.listen( 'ready',
 function() {
   Gamer.init();
 })
@@ -215,7 +215,7 @@ loadImage.listen(''ready ', function(){
 ~~~~
 
 loadImage完成之后, 它根本不关心将来会发生什么, 因为它的工作已经完成了. 接下来它只要发布一个信号.
-`loadImage.trigger( ”ready’ );`
+`loadImage.trigger( 'ready’ );`
 
 那么监听了loadImage的’ready’事件的对象都会收到通知. 就像上个面试的例子. 面试官根本不关心面试者们收到面试结果后会去哪吃饭. 他只负责把面试者的简历搜集到一起. 当面试结果出来时照着简历上的电话挨个通知.
 
@@ -267,7 +267,7 @@ Events = function() {
 
 //订阅者
 ~~~~{javascript}
-var adultTv = Event(); adultTv.listen( 'play ',  function( data ){
+var adultTv = Event(); adultTv.listen( 'play',  function( data ){
    alert ( "今天是谁的电影" + data.name );
 });
  
@@ -330,7 +330,7 @@ $id = function( id ){ 
 ~~~~{javascript}
 var keyMgr = keyManage();
  
-keyMgr.listen( ''change', function( keyCode ){
+keyMgr.listen( 'change', function( keyCode ){
     console.log( keyCode );
 });
 ~~~~
@@ -344,7 +344,7 @@ keyMgr.listen( ''change', function( keyCode ){
 ~~~~{javascript}
 var keyMgr = keyManage();
  
-keyMgr.listen( ''change', proxy( function( keyCode ){
+keyMgr.listen( 'change', proxy( function( keyCode ){
     console.log( keyCode );  //前下前+拳
 )} );
 ~~~~
@@ -430,7 +430,7 @@ var getUserInfo = function(){
 
 ~~~~{javascript}
 var getNameAndSex = function(){
-  return 'svenzeng" + "man";
+  return 'svenzeng' + 'man';
 }
 ~~~~
 
@@ -483,7 +483,7 @@ Visitor .push  =  function(){
 }
 var obj = {};
 obj.push = Visitor .push;
-obj.push( '"first" );
+obj.push( 'first' );
 alert ( obj[0] )  //"first"
 alert ( obj.length );  //1
 ~~~~
@@ -644,21 +644,23 @@ var 斗地主 = function(){
 
 切回到程序世界里的mvc，无论是j2ee中struts的Action. 还是js中backbone.js和spine.js里的Controller. 都起到了一个中介者的作用.
 
-拿backbone举例. 一个mode里的数据并不确定最后被哪些view使用. view需要的数据也可以来自任意一个mode. 所有的绑定关系都是在controler里决定. 中介者把复杂的多对多关系, 变成了2个相对简单的1对多关系.
+拿backbone举例. 一个mode里的数据并不确定最后被哪些view使用. view需要的数据也可以来自任意一个mode. 所有的绑定关系都是在controler里决定. 中介者把复杂的多对多关系, 变成了2个相对简单的1对多关系
 
-![](http://jbcdn2.b0.upaiyun.com/2012/10/image-6.png)
+
+ ![](http://jbcdn2.b0.upaiyun.com/2012/10/image-6.png)
+
 
 一段简单的示例代码：
 ~~~~{javascript}
 var mode1 = Mode.create(),  mode2 = Mode.create();
 var view1 = View.create(),   view2 = View.create();
 var controler1 = Controler.create( mode1, view1, function(){
-  view1.el.find( ''div' ).bind( ''click', function(){
+  view1.el.find( 'div' ).bind( 'click', function(){
     this.innerHTML = mode1.find( 'data' );
   } )
 })
 var controler2 = Controler.create( mode2 view2, function(){
-  view1.el.find( ''div' ).bind( ''click', function(){
+  view1.el.find( 'div' ).bind( 'click', function(){
     this.innerHTML = mode2.find( 'data' );
   } )
 })
@@ -783,6 +785,7 @@ js中的事件冒泡就是作为一个职责链来实现的。一个事件在某
 所以我们想到了一种解决办法, 当滚动条滚动的时候, 把已经消失在视线外的div都删除掉. 这样页面可以保持只有一定数量的节点. 问题是这样频繁的添加与删除节点, 也会造成很大的性能开销, 而且这种感觉很不对味.
 
 现在享元模式可以登场了. 顾名思义, 享元模式可以提供一些共享的对象以便重复利用. 仔细看下上图, 其实我们一共只需要10个div来显示好友信息,也就是出现在用户视线中的10个div.这10个div就可以写成享元.
+
 ~~~~{javascript}
 var getDiv = (function(){
     var created = [];
@@ -816,6 +819,7 @@ var getDiv = (function(){
 1 一个对象的行为取决于它的状态
 2 一个操作中含有庞大的条件分支语句
 回想下街头霸王的游戏。
+
 ![](http://jbcdn2.b0.upaiyun.com/2012/10/image-2.jpg)
 
 隆有走动，攻击，防御，跌倒，跳跃等等多种状态，而这些状态之间既有联系又互相约束。比如跳跃的时候是不能攻击和防御的。跌倒的时候既不能攻击又不能防御，而走动的时候既可以攻击也可以跳跃。
@@ -921,7 +925,7 @@ GOF提出的23种设计模式，至此已经写完大半。还有一些要么是
 
 <p>再看下第二种方案, 在页面的一开始就创建好这个div. 然后用一个变量引用它</p>
 
-<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> mask <span class="token operator">=</span> document<span class="token punctuation">.</span>body<span class="token punctuation">.</span><span class="token function">appendChild<span class="token punctuation">(</span></span>document<span class="token punctuation">.</span><span class="token function">createElement<span class="token punctuation">(</span></span><span class="token string">''</span>div " <span class="token punctuation">)</span> <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> mask <span class="token operator">=</span> document<span class="token punctuation">.</span>body<span class="token punctuation">.</span><span class="token function">appendChild<span class="token punctuation">(</span></span>document<span class="token punctuation">.</span><span class="token function">createElement<span class="token punctuation">(</span></span><span class="token string">''</span>div" <span class="token punctuation">)</span> <span class="token punctuation">)</span><span class="token punctuation">;</span>
 $<span class="token punctuation">(</span> <span class="token string">''</span>button"<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">click<span class="token punctuation">(</span></span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   mask<span class="token punctuation">.</span><span class="token function">show<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1014,7 +1018,7 @@ $<span class="token punctuation">(</span> <span class="token string">''</span>bu
 观察者模式( 又叫发布者-订阅者模式 )应该是最常用的模式之一. 在很多语言里都得到大量应用. 包括我们平时接触的dom事件. 也是js和dom之间实现的一种观察者模式.
 
 <pre class=" language-javascript"><code class=" language-javascript">div<span class="token punctuation">.</span>onclick <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token function">click<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-  <span class="token function">alert<span class="token punctuation">(</span></span><span class="token string">''</span>click ' <span class="token punctuation">)</span>
+  <span class="token function">alert<span class="token punctuation">(</span></span><span class="token string">'click'</span> <span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>只要订阅了div的click事件. 当点击div的时候, function click就会被触发.
 
@@ -1046,11 +1050,11 @@ loadImage的代码如下
 
 <p>可是写这个模块的同事A去了外地旅游. 于是我打电话给他, 喂. 你的loadImage函数在哪, 我能不能改一下, 改了之后有没有副作用. 如你所想, 各种不淡定的事发生了. 如果当初我们能这样写呢:</p>
 
-<pre class=" language-javascript"><code class=" language-javascript">loadImage<span class="token punctuation">.</span><span class="token function">listen<span class="token punctuation">(</span></span><span class="token string">''</span>ready '<span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+<pre class=" language-javascript"><code class=" language-javascript">loadImage<span class="token punctuation">.</span><span class="token function">listen<span class="token punctuation">(</span></span><span class="token string">'ready '</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
     Map<span class="token punctuation">.</span><span class="token function">init<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span>
 
-loadImage<span class="token punctuation">.</span><span class="token function">listen<span class="token punctuation">(</span></span> <span class="token string">''</span>ready'<span class="token punctuation">,</span>
+loadImage<span class="token punctuation">.</span><span class="token function">listen<span class="token punctuation">(</span></span> <span class="token string">'ready'</span><span class="token punctuation">,</span>
 <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   Gamer<span class="token punctuation">.</span><span class="token function">init<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span>
@@ -1061,7 +1065,7 @@ loadImage<span class="token punctuation">.</span><span class="token function">li
 </code></pre>
 
 <p>loadImage完成之后, 它根本不关心将来会发生什么, 因为它的工作已经完成了. 接下来它只要发布一个信号.
-<code>loadImage.trigger( ”ready’ );</code></p>
+<code>loadImage.trigger( 'ready’ );</code></p>
 
 <p>那么监听了loadImage的’ready’事件的对象都会收到通知. 就像上个面试的例子. 面试官根本不关心面试者们收到面试结果后会去哪吃饭. 他只负责把面试者的简历搜集到一起. 当面试结果出来时照着简历上的电话挨个通知.</p>
 
@@ -1113,7 +1117,7 @@ loadImage<span class="token punctuation">.</span><span class="token function">li
 
 <p>//订阅者</p>
 
-<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> adultTv <span class="token operator">=</span> <span class="token function">Event<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span> adultTv<span class="token punctuation">.</span><span class="token function">listen<span class="token punctuation">(</span></span> <span class="token string">'play '</span><span class="token punctuation">,</span>  <span class="token keyword">function</span><span class="token punctuation">(</span> data <span class="token punctuation">)</span><span class="token punctuation">{</span>
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> adultTv <span class="token operator">=</span> <span class="token function">Event<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span> adultTv<span class="token punctuation">.</span><span class="token function">listen<span class="token punctuation">(</span></span> <span class="token string">'play'</span><span class="token punctuation">,</span>  <span class="token keyword">function</span><span class="token punctuation">(</span> data <span class="token punctuation">)</span><span class="token punctuation">{</span>
    alert <span class="token punctuation">(</span> <span class="token string">"今天是谁的电影"</span> <span class="token operator">+</span> data<span class="token punctuation">.</span>name <span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
  <span class="token comment" spellcheck="true">
@@ -1175,7 +1179,7 @@ loadImage<span class="token punctuation">.</span><span class="token function">li
 
 <pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> keyMgr <span class="token operator">=</span> <span class="token function">keyManage<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
  
-keyMgr<span class="token punctuation">.</span><span class="token function">listen<span class="token punctuation">(</span></span> <span class="token string">''</span>change'<span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span> keyCode <span class="token punctuation">)</span><span class="token punctuation">{</span>
+keyMgr<span class="token punctuation">.</span><span class="token function">listen<span class="token punctuation">(</span></span> <span class="token string">'change'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span> keyCode <span class="token punctuation">)</span><span class="token punctuation">{</span>
     console<span class="token punctuation">.</span><span class="token function">log<span class="token punctuation">(</span></span> keyCode <span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
@@ -1188,7 +1192,7 @@ keyMgr<span class="token punctuation">.</span><span class="token function">liste
 
 <pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> keyMgr <span class="token operator">=</span> <span class="token function">keyManage<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
  
-keyMgr<span class="token punctuation">.</span><span class="token function">listen<span class="token punctuation">(</span></span> <span class="token string">''</span>change'<span class="token punctuation">,</span> <span class="token function">proxy<span class="token punctuation">(</span></span> <span class="token keyword">function</span><span class="token punctuation">(</span> keyCode <span class="token punctuation">)</span><span class="token punctuation">{</span>
+keyMgr<span class="token punctuation">.</span><span class="token function">listen<span class="token punctuation">(</span></span> <span class="token string">'change'</span><span class="token punctuation">,</span> <span class="token function">proxy<span class="token punctuation">(</span></span> <span class="token keyword">function</span><span class="token punctuation">(</span> keyCode <span class="token punctuation">)</span><span class="token punctuation">{</span>
     console<span class="token punctuation">.</span><span class="token function">log<span class="token punctuation">(</span></span> keyCode <span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true"> //前下前+拳
 </span><span class="token punctuation">)</span><span class="token punctuation">}</span> <span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
@@ -1270,7 +1274,7 @@ request<span class="token punctuation">.</span><span class="token function">done
 <p>也许你会问为什么一开始不把getName和getSex的代码写到一起, 比如这样</p>
 
 <pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> getNameAndSex <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-  <span class="token keyword">return</span> 'svenzeng<span class="token string">" + "</span>man"<span class="token punctuation">;</span>
+  <span class="token keyword">return</span> <span class="token string">'svenzeng'</span> <span class="token operator">+</span> <span class="token string">'man'</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
 </code></pre>
 
@@ -1323,7 +1327,7 @@ Visitor <span class="token punctuation">.</span>push  <span class="token operato
 <span class="token punctuation">}</span>
 <span class="token keyword">var</span> obj <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
 obj<span class="token punctuation">.</span>push <span class="token operator">=</span> Visitor <span class="token punctuation">.</span>push<span class="token punctuation">;</span>
-obj<span class="token punctuation">.</span><span class="token function">push<span class="token punctuation">(</span></span> '<span class="token string">"first"</span> <span class="token punctuation">)</span><span class="token punctuation">;</span>
+obj<span class="token punctuation">.</span><span class="token function">push<span class="token punctuation">(</span></span> <span class="token string">'first'</span> <span class="token punctuation">)</span><span class="token punctuation">;</span>
 alert <span class="token punctuation">(</span> obj<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token punctuation">)</span> <span class="token comment" spellcheck="true"> //"first"
 </span>alert <span class="token punctuation">(</span> obj<span class="token punctuation">.</span>length <span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true"> //1
 </span></code></pre>
@@ -1484,20 +1488,22 @@ gameCenter<span class="token punctuation">.</span>prototype<span class="token pu
 
 切回到程序世界里的mvc，无论是j2ee中struts的Action. 还是js中backbone.js和spine.js里的Controller. 都起到了一个中介者的作用.
 
-拿backbone举例. 一个mode里的数据并不确定最后被哪些view使用. view需要的数据也可以来自任意一个mode. 所有的绑定关系都是在controler里决定. 中介者把复杂的多对多关系, 变成了2个相对简单的1对多关系.
+拿backbone举例. 一个mode里的数据并不确定最后被哪些view使用. view需要的数据也可以来自任意一个mode. 所有的绑定关系都是在controler里决定. 中介者把复杂的多对多关系, 变成了2个相对简单的1对多关系
 
-![](http://jbcdn2.b0.upaiyun.com/2012/10/image-6.png)
+
+ ![](http://jbcdn2.b0.upaiyun.com/2012/10/image-6.png)
+
 
 一段简单的示例代码：
 <pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> mode1 <span class="token operator">=</span> Mode<span class="token punctuation">.</span><span class="token function">create<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">,</span>  mode2 <span class="token operator">=</span> Mode<span class="token punctuation">.</span><span class="token function">create<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token keyword">var</span> view1 <span class="token operator">=</span> View<span class="token punctuation">.</span><span class="token function">create<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">,</span>   view2 <span class="token operator">=</span> View<span class="token punctuation">.</span><span class="token function">create<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token keyword">var</span> controler1 <span class="token operator">=</span> Controler<span class="token punctuation">.</span><span class="token function">create<span class="token punctuation">(</span></span> mode1<span class="token punctuation">,</span> view1<span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-  view1<span class="token punctuation">.</span>el<span class="token punctuation">.</span><span class="token function">find<span class="token punctuation">(</span></span> <span class="token string">''</span>div<span class="token string">' ).bind( '</span><span class="token string">'click'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+  view1<span class="token punctuation">.</span>el<span class="token punctuation">.</span><span class="token function">find<span class="token punctuation">(</span></span> <span class="token string">'div'</span> <span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">bind<span class="token punctuation">(</span></span> <span class="token string">'click'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
     <span class="token keyword">this</span><span class="token punctuation">.</span>innerHTML <span class="token operator">=</span> mode1<span class="token punctuation">.</span><span class="token function">find<span class="token punctuation">(</span></span> <span class="token string">'data'</span> <span class="token punctuation">)</span><span class="token punctuation">;</span>
   <span class="token punctuation">}</span> <span class="token punctuation">)</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span>
 <span class="token keyword">var</span> controler2 <span class="token operator">=</span> Controler<span class="token punctuation">.</span><span class="token function">create<span class="token punctuation">(</span></span> mode2 view2<span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-  view1<span class="token punctuation">.</span>el<span class="token punctuation">.</span><span class="token function">find<span class="token punctuation">(</span></span> <span class="token string">''</span>div<span class="token string">' ).bind( '</span><span class="token string">'click'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+  view1<span class="token punctuation">.</span>el<span class="token punctuation">.</span><span class="token function">find<span class="token punctuation">(</span></span> <span class="token string">'div'</span> <span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">bind<span class="token punctuation">(</span></span> <span class="token string">'click'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
     <span class="token keyword">this</span><span class="token punctuation">.</span>innerHTML <span class="token operator">=</span> mode2<span class="token punctuation">.</span><span class="token function">find<span class="token punctuation">(</span></span> <span class="token string">'data'</span> <span class="token punctuation">)</span><span class="token punctuation">;</span>
   <span class="token punctuation">}</span> <span class="token punctuation">)</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span>
@@ -1653,8 +1659,9 @@ js中的事件冒泡就是作为一个职责链来实现的。一个事件在某
 <p>状态模式主要可以用于这种场景
 1 一个对象的行为取决于它的状态
 2 一个操作中含有庞大的条件分支语句
-回想下街头霸王的游戏。
-<img src="http://jbcdn2.b0.upaiyun.com/2012/10/image-2.jpg" alt="" title=""></p>
+回想下街头霸王的游戏。</p>
+
+<p><img src="http://jbcdn2.b0.upaiyun.com/2012/10/image-2.jpg" alt="" title=""></p>
 
 <p>隆有走动，攻击，防御，跌倒，跳跃等等多种状态，而这些状态之间既有联系又互相约束。比如跳跃的时候是不能攻击和防御的。跌倒的时候既不能攻击又不能防御，而走动的时候既可以攻击也可以跳跃。</p>
 
