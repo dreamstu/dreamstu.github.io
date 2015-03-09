@@ -1,0 +1,352 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="Keywords" content="blog"/>
+    <meta name="Description" content="blog"/>
+    <title>JohnKim Blog</title>
+    <link rel="shortcut icon" href="/static/favicon.png"/>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div class="main">
+    <div class="header">
+    	<ul id="pages">
+            <li><a href="/">home</a></li>
+            <li><a href="/#/tags">tags</a></li>
+            <li><a href="/#/archive">archive</a></li>
+    	</ul>
+    </div>
+	<div class="wrap-header">
+	<h1>
+    <a href="/" id="title"></a>
+	</h1>
+	</div>
+<div id="md" style="display: none;">
+<!-- markdown -->
+>你有没有对“在复杂的JSON数据结构中查找匹配内容”而烦恼。这里有8种不同的方式可以做到：
+
+
+##JsonSQL
+
+JsonSQL实现了使用SQL select语句在json数据结构中查询的功能。
+
+例子：
+
+~~~~{javascript}
+jsonsql.query("select * from json.channel.items order by title desc",json);
+~~~~
+
+主页：http://www.trentrichardson.com/jsonsql/
+
+##JSONPath
+
+JSONPath就像是针对JSON数据结构的XPath。
+
+例子：
+
+~~~~{javascript}
+jsonPath( books, '$..book[(@.length-1)]')
+~~~
+
+主页：http://goessner.net/articles/JsonPath/
+
+##jfunk
+
+jFunk允许你检索（很快会加入管理功能）复杂的JSON或Javascript对象。jFunk API的设计几乎与jQuery API类似。它直接复制了jQuery的API，除了那些针对DOM的API。
+
+例子：
+~~~~{javascript}
+Jf("> vegetables > *[color=Orange]",Food).get();
+~~~~
+
+主页：http://code.google.com/p/jfunk/
+
+##TaffyDB
+
+你过去有没有注意到Javascript对象的字面值看起来很像记录？如果你把他们包裹在一个数组里面，那么它们看起来有没有像一个数据库表？TaffyDB是一个Javascript库，它提供了强大的数据库功能以实现之前的想法，大大改善了你在Javascript中使用数据的方式。
+
+~~~~{javascript}
+var kelly = friends({id:2}).first();
+~~~~
+
+主页：http://www.taffydb.com/
+
+##linq.js
+
+linq.js——Javascript中的LINQ（译者注：.Net中的概念，见http://msdn.microsoft.com/zh-tw/library/bb397897）
+
+~~~~{javascript}
+var queryResult2 = Enumerable.From(jsonArray)
+    .Where("$.user.id < 200")
+    .OrderBy("$.user.screen_name")
+    .Select("$.user.screen_name + ':' + $.text")
+    .ToArray();
+~~~~
+
+主页：http://linqjs.codeplex.com/
+
+主页：http://neue.cc/reference.htm
+
+##objeq
+
+objeq是一个简单的库，实现了对POJSO（Plain-Old JavaScript Objects，普通的Javascript对象）的实时查询。
+
+~~~~{javascript}
+var res = $objeq(data, "age > 40 && gender == 'female' -> name");
+    // --> Returns ['Jessica']
+~~~~
+
+主页：https://github.com/agilosoftware/objeq
+
+（译注：它使用了Javascript的property setters，所以它只能工作在较新的浏览器上）
+
+##json:select()
+
+使用类CSS选择符来查询JSON。
+
+~~~~{javascript}
+.lang:val("Bulgarian") ~ .level
+~~~~
+
+主页：http://jsonselect.org/#tryit
+
+Paul的编程珠玑中的Javascript数组过滤方法
+
+~~~~{javascript}
+var a = [1,2,3,4,5,6,7,8,9,10];
+ 
+        // return everything
+ 
+        a.where( "( ) => true" ) ;
+ 
+        //  --> [1,2,3,4,5,6,7,8,9,10]
+ 
+        // return even numbers
+ 
+        a.where( "( n, i ) => n % 2 == 0" ) ;
+ 
+        //  --> [2,4,6,8,10]
+ 
+        // query first 6 products whose category begins with 'con' using extra param and regular expression
+ 
+        products.where( "( el, i, res, param ) => res.length <= 6 && param.test( el.cat )", /^con/i);
+ 
+        // using customer table data from SQL Server's northwind database...    
+ 
+        customers.where( "( el, i, res, param ) => el.country == param", "USA" );
+~~~~
+
+主页：http://www.paulfree.com/28/javascript-array-filtering/#more-28
+
+目前这是我最喜欢的查询JSON数据结构的方法。它非常的简单，并且据作者所说它非常快。
+
+它背后的理念和John Resig的JavaScript Micro-Templating类似：使用正确表达式将一段非常简单的字符串转换成Javascript函数。
+
+当然，还有更多强大的解决方案。Paul实现的原型还缺少对过滤表达式的语法检查，但是我相信你应该可以自己解决Javscript的语法检查。
+
+最后，你必须决定哪个对于你的项目来说最好。
+
+##json
+
+英文原文：orangevolt，编译：伯乐在线——周敏明
+
+译文链接：http://blog.jobbole.com/31166/
+<!-- markdown end -->
+</div>
+<div class="entry" id="main">
+<!-- content -->
+<blockquote>
+  <p>你有没有对“在复杂的JSON数据结构中查找匹配内容”而烦恼。这里有8种不同的方式可以做到：</p>
+</blockquote>
+
+<h2 id="jsonsql">JsonSQL</h2>
+
+<p>JsonSQL实现了使用SQL select语句在json数据结构中查询的功能。</p>
+
+<p>例子：</p>
+
+<pre class=" language-javascript"><code class=" language-javascript">jsonsql<span class="token punctuation">.</span><span class="token function">query<span class="token punctuation">(</span></span><span class="token string">"select * from json.channel.items order by title desc"</span><span class="token punctuation">,</span>json<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+
+<p>主页：http://www.trentrichardson.com/jsonsql/</p>
+
+<h2 id="jsonpath">JSONPath</h2>
+
+<p>JSONPath就像是针对JSON数据结构的XPath。</p>
+
+<p>例子：</p>
+
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token function">jsonPath<span class="token punctuation">(</span></span> books<span class="token punctuation">,</span> <span class="token string">'$..book[(@.length-1)]'</span><span class="token punctuation">)</span>
+<span class="token operator">~</span><span class="token operator">~</span><span class="token operator">~</span>
+
+主页：http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>goessner<span class="token punctuation">.</span>net<span class="token operator">/</span>articles<span class="token regex">/JsonPath/</span>
+
+##jfunk
+
+jFunk允许你检索（很快会加入管理功能）复杂的JSON或Javascript对象。jFunk API的设计几乎与jQuery API类似。它直接复制了jQuery的API，除了那些针对DOM的API。
+
+例子：
+<span class="token operator">~</span><span class="token operator">~</span><span class="token operator">~</span><span class="token operator">~</span><span class="token punctuation">{</span>javascript<span class="token punctuation">}</span>
+<span class="token function">Jf<span class="token punctuation">(</span></span><span class="token string">"&gt; vegetables &gt; *[color=Orange]"</span><span class="token punctuation">,</span>Food<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token keyword">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+
+<p>主页：http://code.google.com/p/jfunk/</p>
+
+<h2 id="taffydb">TaffyDB</h2>
+
+<p>你过去有没有注意到Javascript对象的字面值看起来很像记录？如果你把他们包裹在一个数组里面，那么它们看起来有没有像一个数据库表？TaffyDB是一个Javascript库，它提供了强大的数据库功能以实现之前的想法，大大改善了你在Javascript中使用数据的方式。</p>
+
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> kelly <span class="token operator">=</span> <span class="token function">friends<span class="token punctuation">(</span></span><span class="token punctuation">{</span>id<span class="token punctuation">:</span><span class="token number">2</span><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">first<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+
+<p>主页：http://www.taffydb.com/</p>
+
+<h2 id="linqjs">linq.js</h2>
+
+<p>linq.js——Javascript中的LINQ（译者注：.Net中的概念，见http://msdn.microsoft.com/zh-tw/library/bb397897）</p>
+
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> queryResult2 <span class="token operator">=</span> Enumerable<span class="token punctuation">.</span><span class="token function">From<span class="token punctuation">(</span></span>jsonArray<span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">Where<span class="token punctuation">(</span></span><span class="token string">"$.user.id &lt; 200"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">OrderBy<span class="token punctuation">(</span></span><span class="token string">"$.user.screen_name"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">Select<span class="token punctuation">(</span></span><span class="token string">"$.user.screen_name + ':' + $.text"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">ToArray<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+
+<p>主页：http://linqjs.codeplex.com/</p>
+
+<p>主页：http://neue.cc/reference.htm</p>
+
+<h2 id="objeq">objeq</h2>
+
+<p>objeq是一个简单的库，实现了对POJSO（Plain-Old JavaScript Objects，普通的Javascript对象）的实时查询。</p>
+
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> res <span class="token operator">=</span> $<span class="token function">objeq<span class="token punctuation">(</span></span>data<span class="token punctuation">,</span> <span class="token string">"age &gt; 40 &amp;&amp; gender == 'female' -&gt; name"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+   <span class="token comment" spellcheck="true"> // --&gt; Returns ['Jessica']
+</span></code></pre>
+
+<p>主页：https://github.com/agilosoftware/objeq</p>
+
+<p>（译注：它使用了Javascript的property setters，所以它只能工作在较新的浏览器上）</p>
+
+<h2 id="jsonselect">json:select()</h2>
+
+<p>使用类CSS选择符来查询JSON。</p>
+
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token punctuation">.</span>lang<span class="token punctuation">:</span><span class="token function">val<span class="token punctuation">(</span></span><span class="token string">"Bulgarian"</span><span class="token punctuation">)</span> <span class="token operator">~</span> <span class="token punctuation">.</span>level
+</code></pre>
+
+<p>主页：http://jsonselect.org/#tryit</p>
+
+<p>Paul的编程珠玑中的Javascript数组过滤方法</p>
+
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> a <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token number">5</span><span class="token punctuation">,</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">7</span><span class="token punctuation">,</span><span class="token number">8</span><span class="token punctuation">,</span><span class="token number">9</span><span class="token punctuation">,</span><span class="token number">10</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+       <span class="token comment" spellcheck="true"> // return everything
+</span>
+        a<span class="token punctuation">.</span><span class="token function">where<span class="token punctuation">(</span></span> <span class="token string">"( ) =&gt; true"</span> <span class="token punctuation">)</span> <span class="token punctuation">;</span>
+
+       <span class="token comment" spellcheck="true"> //  --&gt; [1,2,3,4,5,6,7,8,9,10]
+</span>
+       <span class="token comment" spellcheck="true"> // return even numbers
+</span>
+        a<span class="token punctuation">.</span><span class="token function">where<span class="token punctuation">(</span></span> <span class="token string">"( n, i ) =&gt; n % 2 == 0"</span> <span class="token punctuation">)</span> <span class="token punctuation">;</span>
+
+       <span class="token comment" spellcheck="true"> //  --&gt; [2,4,6,8,10]
+</span>
+       <span class="token comment" spellcheck="true"> // query first 6 products whose category begins with 'con' using extra param and regular expression
+</span>
+        products<span class="token punctuation">.</span><span class="token function">where<span class="token punctuation">(</span></span> <span class="token string">"( el, i, res, param ) =&gt; res.length &lt;= 6 &amp;&amp; param.test( el.cat )"</span><span class="token punctuation">,</span> <span class="token regex">/^con/i</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+       <span class="token comment" spellcheck="true"> // using customer table data from SQL Server's northwind database...    
+</span>
+        customers<span class="token punctuation">.</span><span class="token function">where<span class="token punctuation">(</span></span> <span class="token string">"( el, i, res, param ) =&gt; el.country == param"</span><span class="token punctuation">,</span> <span class="token string">"USA"</span> <span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+
+<p>主页：http://www.paulfree.com/28/javascript-array-filtering/#more-28</p>
+
+<p>目前这是我最喜欢的查询JSON数据结构的方法。它非常的简单，并且据作者所说它非常快。</p>
+
+<p>它背后的理念和John Resig的JavaScript Micro-Templating类似：使用正确表达式将一段非常简单的字符串转换成Javascript函数。</p>
+
+<p>当然，还有更多强大的解决方案。Paul实现的原型还缺少对过滤表达式的语法检查，但是我相信你应该可以自己解决Javscript的语法检查。</p>
+
+<p>最后，你必须决定哪个对于你的项目来说最好。</p>
+
+<h2 id="json">json</h2>
+
+<p>英文原文：orangevolt，编译：伯乐在线——周敏明</p>
+
+<p>译文链接：http://blog.jobbole.com/31166/</p>
+<!-- content end -->
+</div>
+<br>
+<br>
+    <div id="disqus_thread"></div>
+	<div class="footer">
+		<p>© Copyright 2014 by johnkim, Designed by johnkim</p>
+	</div>
+</div>
+<script src="main.js"></script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ["\\(", "\\)"]], processEscapes: true}});
+</script>
+<script id="content" type="text/mustache">
+    <h1>{{title}}</h1>
+    <div class="tag">
+    {{date}}
+    {{#tags}}
+    <a href="/#/tag/{{name}}">#{{name}}</a>
+    {{/tags}}
+    </div>
+</script>
+<script id="pagesTemplate" type="text/mustache">
+    {{#pages}}
+    <li>
+        <a href="{{path}}">{{title}}</a>
+    </li>
+    {{/pages}}
+</script>
+<script>
+$(document).ready(function() {
+    $.ajax({
+        url: "main.json",
+        type: "GET",
+        dataType: "json",
+        success: function(data) {
+            $("#title").html(data.name);
+            var pagesTemplate = Hogan.compile($("#pagesTemplate").html());
+            var pagesHtml = pagesTemplate.render({"pages": data.pages});
+            $("#pages").append(pagesHtml);
+            //path
+            var path = "31166.html";
+            //path end
+            var now = 0;
+            for (var i = 0; i < data.posts.length; ++i)
+                if (path == data.posts[i].path)
+                    now = i;
+            var post = data.posts[now];
+            var tmp = post.tags.split(" ");
+            var tags = [];
+            for (var i = 0; i < tmp.length; ++i)
+                if (tmp[i].length > 0)
+                    tags.push({"name": tmp[i]});
+            var contentTemplate = Hogan.compile($("#content").html());
+            var contentHtml = contentTemplate.render({"title": post.title, "tags": tags, "date": post.date});
+            $("#main").prepend(contentHtml);
+            if (data.disqus_shortname.length > 0) {
+                var disqus_shortname = data.disqus_shortname;
+                (function() {
+                    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                })();
+            }
+        }
+    });
+});
+</script>
+</body>
+</html>
