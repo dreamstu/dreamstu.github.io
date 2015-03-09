@@ -611,6 +611,7 @@ gameCenter.prototype.end= function(){
 ~~~~
 
 接下来创建一个斗地主的新游戏, 只需要继承gameCenter然后重写它的gameStart函数.
+
 ~~~~{javascript}
 var 斗地主 = function(){
 }
@@ -620,6 +621,7 @@ var 斗地主 = function(){
 }
 (new 斗地主).init();
 ~~~~
+
 这样一局新的游戏就开始了.
 
 ##十一 中介者模式
@@ -1464,37 +1466,38 @@ gameCenter<span class="token punctuation">.</span>prototype<span class="token pu
  <span class="token comment" spellcheck="true"> //do something
 </span><span class="token punctuation">}</span>
 <span class="token punctuation">(</span><span class="token keyword">new</span> 斗地主<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">init<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-</code></pre>这样一局新的游戏就开始了.
+</code></pre>
 
-##十一 中介者模式
+<p>这样一局新的游戏就开始了.</p>
 
-中介者对象可以让各个对象之间不需要显示的相互引用，从而使其耦合松散，而且可以独立的改变它们之间的交互。
+<h2 id="">十一 中介者模式</h2>
 
-打个比方，军火买卖双方为了安全起见，找了一个信任的中介来进行交易。买家A把钱交给中介B，然后从中介手中得到军火，卖家C把军火卖给中介，然后从中介手中拿回钱。一场交易完毕，A甚至不知道C是一只猴子还是一只猛犸。因为中介的存在，A也未必一定要买C的军火，也可能是D，E，F。
+<p>中介者对象可以让各个对象之间不需要显示的相互引用，从而使其耦合松散，而且可以独立的改变它们之间的交互。</p>
 
-银行在存款人和贷款人之间也能看成一个中介。存款人A并不关心他的钱最后被谁借走。贷款人B也不关心他借来的钱来自谁的存款。因为有中介的存在，这场交易才变得如此方便。
+<p>打个比方，军火买卖双方为了安全起见，找了一个信任的中介来进行交易。买家A把钱交给中介B，然后从中介手中得到军火，卖家C把军火卖给中介，然后从中介手中拿回钱。一场交易完毕，A甚至不知道C是一只猴子还是一只猛犸。因为中介的存在，A也未必一定要买C的军火，也可能是D，E，F。</p>
 
-中介者模式和代理模式有一点点相似。都是第三者对象来连接2个对象的通信。具体差别可以从下图中区别。
+<p>银行在存款人和贷款人之间也能看成一个中介。存款人A并不关心他的钱最后被谁借走。贷款人B也不关心他借来的钱来自谁的存款。因为有中介的存在，这场交易才变得如此方便。</p>
 
-代理模式：
+<p>中介者模式和代理模式有一点点相似。都是第三者对象来连接2个对象的通信。具体差别可以从下图中区别。</p>
 
-![](http://jbcdn2.b0.upaiyun.com/2012/10/image-4.png)
+<p>代理模式：</p>
 
-中介者模式
+<p><img src="http://jbcdn2.b0.upaiyun.com/2012/10/image-4.png" alt="" title=""></p>
 
-![](http://jbcdn2.b0.upaiyun.com/2012/10/image-5.png)
+<p>中介者模式</p>
 
-代理模式中A必然是知道B的一切，而中介者模式中A,B,C对E,F,G的实现并不关心.而且中介者模式可以连接任意多种对象。
+<p><img src="http://jbcdn2.b0.upaiyun.com/2012/10/image-5.png" alt="" title=""></p>
 
-切回到程序世界里的mvc，无论是j2ee中struts的Action. 还是js中backbone.js和spine.js里的Controller. 都起到了一个中介者的作用.
+<p>代理模式中A必然是知道B的一切，而中介者模式中A,B,C对E,F,G的实现并不关心.而且中介者模式可以连接任意多种对象。</p>
 
-拿backbone举例. 一个mode里的数据并不确定最后被哪些view使用. view需要的数据也可以来自任意一个mode. 所有的绑定关系都是在controler里决定. 中介者把复杂的多对多关系, 变成了2个相对简单的1对多关系
+<p>切回到程序世界里的mvc，无论是j2ee中struts的Action. 还是js中backbone.js和spine.js里的Controller. 都起到了一个中介者的作用.</p>
 
+<p>拿backbone举例. 一个mode里的数据并不确定最后被哪些view使用. view需要的数据也可以来自任意一个mode. 所有的绑定关系都是在controler里决定. 中介者把复杂的多对多关系, 变成了2个相对简单的1对多关系</p>
 
- ![](http://jbcdn2.b0.upaiyun.com/2012/10/image-6.png)
+<p><img src="http://jbcdn2.b0.upaiyun.com/2012/10/image-6.png" alt="" title=""></p>
 
+<p>一段简单的示例代码：</p>
 
-一段简单的示例代码：
 <pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> mode1 <span class="token operator">=</span> Mode<span class="token punctuation">.</span><span class="token function">create<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">,</span>  mode2 <span class="token operator">=</span> Mode<span class="token punctuation">.</span><span class="token function">create<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token keyword">var</span> view1 <span class="token operator">=</span> View<span class="token punctuation">.</span><span class="token function">create<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">,</span>   view2 <span class="token operator">=</span> View<span class="token punctuation">.</span><span class="token function">create<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token keyword">var</span> controler1 <span class="token operator">=</span> Controler<span class="token punctuation">.</span><span class="token function">create<span class="token punctuation">(</span></span> mode1<span class="token punctuation">,</span> view1<span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
